@@ -1,0 +1,58 @@
+{
+    "variables": {
+        "triton_url": "{{env `SDC_URL`}}",
+        "triton_account": "{{env `SDC_ACCOUNT`}}",
+        "triton_key_id": "{{env `SDC_KEY_ID`}}"
+    },
+
+    "builders": [
+        {
+            "type": "triton",
+            "triton_url": "{{user `triton_url`}}",
+            "triton_account": "{{user `triton_account`}}",
+            "triton_key_id": "{{user `triton_key_id`}}",
+
+            "source_machine_name": "centos-6",
+            "source_machine_package": "sample-512M",
+            "source_machine_image": "6aac0370-56b8-11e7-a29b-df1de8b42795",
+
+            "ssh_username": "root",
+
+            "image_name": "conda-forge/linux-anvil",
+            "image_version": "0.1.0",
+            "image_tags": {
+                "Project": "conda-forge"
+            }
+        }
+    ],
+
+    "provisioners": [
+        {
+            "type": "shell",
+            "scripts": [
+                "10-basic-requirements.sh",
+                "20-devtoolset-2.sh",
+                "30-install-miniconda.sh",
+                "40-install-conda-build.sh",
+                "50-install-docker-tools.sh"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "../linux-anvil/entrypoint_source",
+            "destination": "/etc/skel/.conda-forge-activate"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "echo '. ~/.conda-forge-activate' >> /etc/skel/.bash_profile"
+            ]
+        },
+        {
+            "type": "shell",
+            "scripts": [
+                "60-create-conda-user.sh"
+            ]
+        }
+    ]
+}
